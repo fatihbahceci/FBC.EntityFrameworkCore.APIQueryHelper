@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace FBC.EntityFrameworkCore.APIQueryHelper
 {
 
-    public class ACListResponse<T> : APIResponse<List<T>>
+    public class ACListResponse<T> : APIResponse<int, List<T>>
     {
         public ACListResponse()
         {
-            this.ResponseCode = 0;// EAPIResponseStatus.Data;
+            this.ResponseStatus = 0;// EAPIResponseStatus.Data;
         }
         public int Echo { get; set; }
 

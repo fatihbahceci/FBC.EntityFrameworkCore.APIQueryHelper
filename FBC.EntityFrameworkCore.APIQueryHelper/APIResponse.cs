@@ -5,33 +5,23 @@ using System.Threading.Tasks;
 
 namespace FBC.EntityFrameworkCore.APIQueryHelper
 {
-    //public enum EAPIResponseStatus
-    //{
-    //    UNKNOWN = 0,
-    //    LoginRequired = 1,
-    //    LoginResponse = 2,
-    //    //NotPermission = 3,
-    //    //ErrorOccured = 4,
-    //    Data = 99,
-    //}
-
-    public class APIResponse<T>
+    public class APIResponse<TResponseStatus, TResultData>
     {
-        public int ResponseCode { get; set; }
+        public TResponseStatus ResponseStatus { get; set; }
 
-        public T Data { get; set; }
+        public TResultData Data { get; set; }
 
-        public APIResponse(int responseCode, T data)
+        public APIResponse(TResponseStatus responseStatus, TResultData data)
         {
-            ResponseCode = responseCode;
+            ResponseStatus = responseStatus;
             Data = data;
         }
-        public APIResponse(int responseCode) : this(responseCode, default(T))
+        public APIResponse(TResponseStatus responseStatus) : this(responseStatus, default(TResultData))
         {
 
         }
 
-        public APIResponse() : this(-1, default(T))
+        public APIResponse() : this(default(TResponseStatus), default(TResultData))
         {
 
         }
