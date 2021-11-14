@@ -1,6 +1,5 @@
 ﻿using FBC.EntityFrameworkCore.APIQueryHelper.Models;
 using FBC.EntityFrameworkCore.APIQueryHelper.Models.Requests;
-using FBC.EntityFrameworkCore.APIQueryHelper.Models.Responses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
@@ -13,11 +12,11 @@ using System.Linq.Expressions;
 
 namespace FBC.EntityFrameworkCore.APIQueryHelper
 {
-    public abstract class APIDBContextHelper<TDataTable>
+    public abstract class APIDBContextHelper<TDataTable, TDatabase> where TDatabase : DbContext, new()
     {
-        protected DbContext db;
+        protected TDatabase db;
 
-        public APIDBContextHelper(DbContext dibi)
+        public APIDBContextHelper(TDatabase dibi)
         {
             this.db = dibi;
         }
@@ -66,8 +65,12 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
         /// Other queries call this method first.If it returns null then the calling query also returns null.
         /// </summary>
         /// <param name="extraParams">For example: UserRights</param>
+        /// <param name="noTracking">
+        /// true: give a query read only (for performance and keep data read only)<br />
+        /// false: give an edit-open query for updating data
+        /// </param>
         /// <returns></returns>
-        protected abstract IQueryable<TDataTable> getBaseQuery(object extraParams = null);
+        protected abstract IQueryable<TDataTable> getBaseQuery(bool noTracking, object? extraParams = null);
         /// <summary>
         /// 
         /// </summary>
@@ -77,7 +80,7 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
         /// <returns></returns>
         private IQueryable<TDataTable> getBaseToListQuery(ACGetListRequest aq, ref int filteredCount, object extraParams = null)
         {
-            var q = getBaseQuery(extraParams);
+            var q = getBaseQuery(true, extraParams);
             if (q == null)
             {
                 return null;
@@ -375,7 +378,7 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
         /// <returns></returns>
         public List<TDataTable> ToList(Expression<Func<TDataTable, bool>> e, object extraParams = null)
         {
-            var q = getBaseQuery(extraParams);
+            var q = getBaseQuery(true, extraParams);
             if (q == null)
             {
                 return null;
