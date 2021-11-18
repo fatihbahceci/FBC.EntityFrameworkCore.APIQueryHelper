@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace FBC.EntityFrameworkCore.APIQueryHelper
 {
-    public class APIResponse<TResponseStatus, TResultData>
+    public class APIResponse<TResponseStatus, TResultData> 
     {
         public TResponseStatus ResponseStatus { get; set; }
 

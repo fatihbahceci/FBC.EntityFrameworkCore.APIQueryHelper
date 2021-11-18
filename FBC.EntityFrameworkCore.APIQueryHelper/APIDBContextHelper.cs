@@ -70,7 +70,7 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
         /// false: give an edit-open query for updating data
         /// </param>
         /// <returns></returns>
-        protected abstract IQueryable<TDataTable> getBaseQuery(bool noTracking, object? extraParams = null);
+        protected abstract IQueryable<TDataTable> getBaseQuery(bool noTracking, object extraParams = null);
         /// <summary>
         /// 
         /// </summary>
@@ -98,9 +98,9 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
                 }
             }
             filteredCount = q.Count();
-            if (aq.Offset > 0)
+            if (aq.Skip > 0)
             {
-                q = q.Skip(aq.Offset);
+                q = q.Skip(aq.Skip);
             }
             if (aq.Count > 0)
             {
@@ -138,7 +138,8 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
                 return new ACListResponse<TDataTable>()
                 {
                     Echo = aq.Echo,
-                    Offset = 0,
+                    SkippedCount = aq.Skip,
+                    Count = 0,
                     TotalFilteredCount = 0,
                     Data = new List<TDataTable>()
                 };
@@ -149,7 +150,8 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
                 return new ACListResponse<TDataTable>()
                 {
                     Echo = aq.Echo,
-                    Offset = aq.Offset + data.Count,
+                    SkippedCount = aq.Skip,
+                    Count = data.Count,
                     TotalFilteredCount = filteredCount,
                     Data = data
                 };

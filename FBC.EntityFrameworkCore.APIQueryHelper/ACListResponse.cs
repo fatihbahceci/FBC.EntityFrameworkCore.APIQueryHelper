@@ -16,8 +16,17 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
             this.ResponseStatus = 0;// EAPIResponseStatus.Data;
         }
         public int Echo { get; set; }
-
-        public int Offset { get; set; }
+        /// <summary>
+        /// Skip from request
+        /// </summary>
+        public int SkippedCount { get; set; }
+        /// <summary>
+        /// Result data count
+        /// </summary>
+        public int Count { get; set; }
+        /// <summary>
+        /// Total record count of filtered data; (Not all data, just filtered data)
+        /// </summary>
         public int TotalFilteredCount { get; set; }
     }
 }
