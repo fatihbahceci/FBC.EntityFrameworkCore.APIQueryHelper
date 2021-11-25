@@ -157,6 +157,19 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
             var q = getBaseToListQuery(aq, ref filteredCount, extraParams);
             return q.FirstOrDefault();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="aq"></param>
+        /// <param name="extraParams"></param>
+        /// <returns></returns>
+        public async Task<TDataTable> FirstOrDefaultAsync(ACGetListRequest aq, object extraParams = null)
+        {
+            int filteredCount = 0;
+            var q = getBaseToListQuery(aq, ref filteredCount, extraParams);
+            return await q.FirstOrDefaultAsync();
+        }
         /// <summary>
         /// 
         /// </summary>
