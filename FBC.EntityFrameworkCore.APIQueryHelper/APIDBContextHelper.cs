@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
-
+using System.Threading.Tasks;
 
 namespace FBC.EntityFrameworkCore.APIQueryHelper
 {
@@ -111,6 +111,40 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
             return q;
         }
 
+        private async Task<Tuple<int, IQueryable<TDataTable>>> getBaseToListQueryAsync(ACGetListRequest aq, object extraParams = null)
+        {
+
+            var q = getBaseQuery(true, extraParams);
+            if (q == null)
+            {
+                return null;
+            }
+            else
+            {
+                foreach (var filter in aq.Filters)
+                {
+                    q = this.Filter(q, filter);
+                }
+
+                foreach (var order in aq.Orders)
+                {
+                    q = this.Order(q, order);
+                }
+            }
+            int filteredCount = await q.CountAsync();
+            if (aq.Skip > 0)
+            {
+                q = q.Skip(aq.Skip);
+            }
+            if (aq.Count > 0)
+            {
+                q = q.Take(aq.Count);
+            }
+            //Console.WriteLine(new String('*', 100));
+            //Console.WriteLine(q.ToSql());
+            return new Tuple<int, IQueryable<TDataTable>>(filteredCount, q);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -153,6 +187,40 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
                     SkippedCount = aq.Skip,
                     Count = data.Count,
                     TotalFilteredCount = filteredCount,
+                    Data = data
+                };
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="aq"></param>
+        /// <param name="extraParams"></param>
+        /// <returns></returns>
+        public async Task<ACListResponse<TDataTable>> ToListAsync(ACGetListRequest aq, object extraParams = null)
+        {
+            var q = await getBaseToListQueryAsync(aq, extraParams);
+            if (q == null)
+            {
+                return new ACListResponse<TDataTable>()
+                {
+                    Echo = aq.Echo,
+                    SkippedCount = aq.Skip,
+                    Count = 0,
+                    TotalFilteredCount = 0,
+                    Data = new List<TDataTable>()
+                };
+            }
+            else
+            {
+                var data = await q.Item2.ToListAsync();
+                return new ACListResponse<TDataTable>()
+                {
+                    Echo = aq.Echo,
+                    SkippedCount = aq.Skip,
+                    Count = data.Count,
+                    TotalFilteredCount = q.Item1,
                     Data = data
                 };
             }
@@ -389,6 +457,26 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
             {
                 if (e != null) q = q.Where(e);
                 return q.ToList();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="e"></param>
+        /// <param name="extraParams"></param>
+        /// <returns></returns>
+        public async Task<List<TDataTable>> ToListAsync(Expression<Func<TDataTable, bool>> e, object extraParams = null)
+        {
+            var q = getBaseQuery(true, extraParams);
+            if (q == null)
+            {
+                return null;
+            }
+            else
+            {
+                if (e != null) q = q.Where(e);
+                return await q.ToListAsync();
             }
         }
     }
