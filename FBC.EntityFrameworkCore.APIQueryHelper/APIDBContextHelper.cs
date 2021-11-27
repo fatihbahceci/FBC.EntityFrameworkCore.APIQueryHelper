@@ -111,6 +111,46 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
             return q;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="q"></param>
+        /// <param name="aq"></param>
+        /// <returns></returns>
+        private IQueryable<TDataTable> applyFilter(IQueryable<TDataTable> q, ACGetListRequest aq)
+        {
+            if (q == null)
+            {
+                return null;
+            }
+            else
+            {
+                foreach (var filter in aq.Filters)
+                {
+                    q = this.Filter(q, filter);
+                }
+
+                foreach (var order in aq.Orders)
+                {
+                    q = this.Order(q, order);
+                }
+            }
+            //filteredCount = q.Count();
+            if (aq.Skip > 0)
+            {
+                q = q.Skip(aq.Skip);
+            }
+            if (aq.Count > 0)
+            {
+                q = q.Take(aq.Count);
+            }
+            //Console.WriteLine(new String('*', 100));
+            //Console.WriteLine(q.ToSql());
+            return q;
+        }
+
+
+
         private async Task<Tuple<int, IQueryable<TDataTable>>> getBaseToListQueryAsync(ACGetListRequest aq, object extraParams = null)
         {
 
@@ -151,10 +191,10 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
         /// <param name="aq"></param>
         /// <param name="extraParams"></param>
         /// <returns></returns>
-        public TDataTable FirstOrDefault(ACGetListRequest aq, object extraParams = null)
+        public TDataTable FirstOrDefault(ACGetListRequest aq, bool noTracking = true, object extraParams = null)
         {
-            int filteredCount = 0;
-            var q = getBaseToListQuery(aq, ref filteredCount, extraParams);
+            var q = getBaseQuery(noTracking, extraParams);
+            q = applyFilter(q, aq);
             return q.FirstOrDefault();
         }
 
@@ -164,10 +204,10 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
         /// <param name="aq"></param>
         /// <param name="extraParams"></param>
         /// <returns></returns>
-        public async Task<TDataTable> FirstOrDefaultAsync(ACGetListRequest aq, object extraParams = null)
+        public async Task<TDataTable> FirstOrDefaultAsync(ACGetListRequest aq, bool noTracking = true, object extraParams = null)
         {
-            int filteredCount = 0;
-            var q = getBaseToListQuery(aq, ref filteredCount, extraParams);
+            var q = getBaseQuery(noTracking, extraParams);
+            q = applyFilter(q, aq);
             return await q.FirstOrDefaultAsync();
         }
         /// <summary>
