@@ -14,17 +14,21 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
 {
     public abstract class APIDBContextHelper<TDataTable, TDatabase> where TDatabase : DbContext, new()
     {
-        protected TDatabase db;
+        private TDatabase _db;
 
         public APIDBContextHelper(TDatabase dibi)
         {
-            this.db = dibi;
+            this._db = dibi;
         }
 
-        public TDatabase getContext()
+        protected TDatabase db
         {
-            return db;
-        }
+            get
+            {
+                return _db;
+            }
+        }        
+
         ///// <summary>
         ///// 
         ///// </summary>
