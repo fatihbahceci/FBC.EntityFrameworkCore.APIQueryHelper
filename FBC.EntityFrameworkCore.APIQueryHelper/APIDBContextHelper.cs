@@ -20,6 +20,11 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
         {
             this.db = dibi;
         }
+
+        public TDatabase getContext()
+        {
+            return db;
+        }
         ///// <summary>
         ///// 
         ///// </summary>
@@ -185,10 +190,12 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
             return new Tuple<int, IQueryable<TDataTable>>(filteredCount, q);
         }
 
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="aq"></param>
+        /// <param name="noTracking"></param>
         /// <param name="extraParams"></param>
         /// <returns></returns>
         public TDataTable FirstOrDefault(ACGetListRequest aq, bool noTracking = true, object extraParams = null)
@@ -198,10 +205,26 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
             return q.FirstOrDefault();
         }
 
+        //public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="noTracking"></param>
+        /// <param name="extraParams"></param>
+        /// <returns></returns>
+        public TDataTable FirstOrDefault(Expression<Func<TDataTable, bool>> predicate, bool noTracking = true, object extraParams = null)
+        {
+            var q = getBaseQuery(noTracking, extraParams);
+            q = q.Where(predicate);
+            return q.FirstOrDefault();
+        }
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="aq"></param>
+        /// <param name="noTracking"></param>
         /// <param name="extraParams"></param>
         /// <returns></returns>
         public async Task<TDataTable> FirstOrDefaultAsync(ACGetListRequest aq, bool noTracking = true, object extraParams = null)
@@ -210,6 +233,23 @@ namespace FBC.EntityFrameworkCore.APIQueryHelper
             q = applyFilter(q, aq);
             return await q.FirstOrDefaultAsync();
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <param name="noTracking"></param>
+        /// <param name="extraParams"></param>
+        /// <returns></returns>
+        public async Task<TDataTable> FirstOrDefaultAsync(Expression<Func<TDataTable, bool>> predicate, bool noTracking = true, object extraParams = null)
+        {
+            var q = getBaseQuery(noTracking, extraParams);
+            q = q.Where(predicate);
+            return await q.FirstOrDefaultAsync();
+        }
+
+
+
         /// <summary>
         /// 
         /// </summary>
